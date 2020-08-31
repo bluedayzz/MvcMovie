@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MvcMovie.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace MvcMovie
 {
@@ -24,6 +27,18 @@ namespace MvcMovie
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddControllersWithViews();
+
+			services.AddDbContext<MvcMovieContext>(options =>
+					options.UseSqlServer(Configuration.GetConnectionString("MvcMovieContext")));
+
+			services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
+			services.ConfigureApplicationCookie(options =>
+			{
+				options.ExpireTimeSpan = TimeSpan.FromHours(1);
+				options.LoginPath = "/Account/LogIn";
+				options.LogoutPath = "/Account/LogOut";
+				options.AccessDeniedPath = "/Home/Index";
+			});
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
